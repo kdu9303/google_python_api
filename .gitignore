@@ -1,0 +1,8 @@
+venv/
+
+# secrets
+google_service_account_key.json
+.env
+
+# cache
+__pycache__/
