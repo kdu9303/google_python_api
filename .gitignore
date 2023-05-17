@@ -6,3 +6,6 @@ google_service_account_key.json
 
 # cache
 __pycache__/
+
+# templete
+*templete.py
