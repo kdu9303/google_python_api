@@ -105,7 +105,7 @@ def get_calendar_data(calendar_id) -> List[Dict]:
     )
 
     now = datetime.now()
-    time_min = (now - timedelta(weeks=52)).isoformat() + "Z"
+    time_min = (now - timedelta(weeks=26)).isoformat() + "Z"
     time_max = (now + timedelta(weeks=52)).isoformat() + "Z"
 
     events_result = (

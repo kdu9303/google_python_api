@@ -12,7 +12,10 @@ def transform_datetime_to_date(datetime_str: str, time_delta: int = 0):
 
 def transform_range_date_to_date(date_range_str: str):
     current_year = date.today().year
-    date_parts = date_range_str.replace(" ", "").split("~")
+    date_range_str_cleaned = remove_non_words(date_range_str)
+    # print(date_range_str_cleaned)
+
+    date_parts = date_range_str_cleaned.split("~")
 
     # Check if the date range has '~' separator
     if len(date_parts) == 1:
@@ -31,10 +34,10 @@ def transform_range_date_to_date(date_range_str: str):
 
 
 def remove_non_words(string: str):
-    patterns = [" ", "\n"]
-
-    pattern_regex = "|".join(map(re.escape, patterns))
-    string = re.sub(pattern_regex, "", string)
+    # patterns = [" ", "\n"]
+    pattern = re.compile(r"\s+|\n")
+    # pattern_regex = "|".join(map(re.escape, patterns))
+    string = re.sub(pattern, "", string)
 
     return string
 
