@@ -12,7 +12,9 @@ from utils import (
     find_non_matched_items,
 )
 
-load_dotenv(dotenv_path="./venv/.env")
+
+# load_dotenv(dotenv_path="./venv/.env")
+load_dotenv()
 
 CLIENT_SECRET_FILE = os.getenv("CLIENT_SECRET_FILE")
 
