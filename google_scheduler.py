@@ -280,6 +280,53 @@ def insert_events(calander_id, new_events: List, sheet_extracted_data: List[Dict
     print("모든 이벤트가 성공적으로 입력되었습니다.")
 
 
+def remove_duplicate_events(calendar_id, min_week):
+    calender_service = create_service(
+        CLIENT_SECRET_FILE,
+        CALENDAR_API_SERVICE_NAME,
+        CALENDAR_API_VERSION,
+        CALENDAR_SCOPE,
+    )
+
+    # get raw calendar data
+    calendar_extracted_data = get_calendar_data(calendar_id, min_week)
+
+    # filter out events with missing or invalid start date
+    calendar_extracted_data = [
+        event for event in calendar_extracted_data if event.get("start", {}).get("date")
+    ]
+
+    calendar_extracted_data.sort(key=lambda x: (x.get("id"), x.get("created")))
+
+    # create a dictionary to hold unique events
+    unique_events = {}
+
+    for item in calendar_extracted_data:
+        start_date = item.get("start", {}).get("date")
+        summary = item.get("summary")
+
+
+        if summary not in unique_events:
+            # 첫 이벤트만 캐시에 저장
+            unique_events[summary] = {
+                "start_date": start_date,
+                "created": item["created"],
+            }
+
+        else:
+            if (item["created"] != unique_events[summary]["created"]) and (
+                start_date == unique_events[summary]["start_date"]
+            ):
+                try:
+                # print(item.get('id') + " "+ item.get('summary') + ", 시작일:" + item.get("start").get("date") + ", 종료일:" + item.get("end").get("date") + ", 생성일:" + item.get('created') )
+
+                    calender_service.events().delete(
+                        calendarId=calendar_id, eventId=item["id"]
+                    ).execute()
+                except HttpError:
+                    continue
+
+
 def main():
     # GoogleSheet 이벤트 목록 가져오기
     sheet_event_list = get_sheet_data(SHEET_ID, SHEET_RANGE)
@@ -312,3 +359,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    # remove_duplicate_events(CALENDAR_ID, 52)
