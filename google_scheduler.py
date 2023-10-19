@@ -1,5 +1,6 @@
 import os
 from dotenv import load_dotenv
+from rich import print
 from datetime import datetime, timedelta
 from typing import Union, Dict, List
 from google.oauth2 import service_account
@@ -39,7 +40,6 @@ def create_service(
     api_version: str,
     scope,
 ):
-
     CLIENT_SECRET_FILE = client_secret_file
     API_SERVICE_NAME = api_name
     API_VERSION = api_version
@@ -58,7 +58,6 @@ def create_service(
 
 
 def get_sheet_data(sheet_id: str, sheet_range: str) -> List:
-
     sheet_service = create_service(
         CLIENT_SECRET_FILE, SHEET_API_SERVICE_NAME, SHEET_API_VERSION, SHEET_SCOPE
     )
@@ -97,8 +96,7 @@ def transform_sheet_data(sheet_events):
     return transformed_list
 
 
-def get_calendar_data(calendar_id) -> List[Dict]:
-
+def get_calendar_data(calendar_id, min_week) -> List[Dict]:
     calender_service = create_service(
         CLIENT_SECRET_FILE,
         CALENDAR_API_SERVICE_NAME,
@@ -107,7 +105,7 @@ def get_calendar_data(calendar_id) -> List[Dict]:
     )
 
     now = datetime.now()
-    time_min = (now - timedelta(weeks=26)).isoformat() + "Z"
+    time_min = (now - timedelta(weeks=min_week)).isoformat() + "Z"
     time_max = (now + timedelta(weeks=52)).isoformat() + "Z"
 
     events_result = (
@@ -166,8 +164,31 @@ def transform_calendar_data(calender_events) -> List[Dict]:
     return transformed_list
 
 
-def check_new_events(sheet_new_events: List[Dict], calendar_events: List[Dict]) -> Union[List,List]:
+def limit_calendar_data_by_datetime(
+    transformed_list: List[Dict], min_week: str
+) -> List[Dict]:
+    limited_list = []
 
+    # 현재 시간을 ISO 형식으로 변환하고, Z 를 제거합니다.
+    now = datetime.now()
+    time_min = (now - timedelta(weeks=min_week)).isoformat()
+    time_min = datetime.fromisoformat(time_min).date()
+    # print(time_min)
+
+    for item in transformed_list:
+        try:
+            due_date = datetime.strptime(item.get("due_date"), "%Y-%m-%d").date()
+            if due_date >= time_min:
+                limited_list.append(item)
+        except ValueError as e:
+            print(f"Invalid date format in {item}: {e}")
+            continue  # Skip this item
+    return limited_list
+
+
+def check_new_events(
+    sheet_new_events: List[Dict], calendar_events: List[Dict]
+) -> Union[List, List]:
     new_events = [event.get("summary") for event in sheet_new_events]
     existing_events = [event.get("summary") for event in calendar_events]
     existing_event_id = [event.get("event_id") for event in calendar_events]
@@ -178,7 +199,12 @@ def check_new_events(sheet_new_events: List[Dict], calendar_events: List[Dict]) 
     return new_event_list, existing_events, existing_event_id
 
 
-def update_event_description(calander_id, existing_events: List, existing_event_id: List, sheet_extracted_data: List[Dict]):
+def update_event_description(
+    calander_id,
+    existing_events: List,
+    existing_event_id: List,
+    sheet_extracted_data: List[Dict],
+):
     calender_service = create_service(
         CLIENT_SECRET_FILE,
         CALENDAR_API_SERVICE_NAME,
@@ -258,16 +284,27 @@ def main():
     # GoogleSheet 이벤트 목록 가져오기
     sheet_event_list = get_sheet_data(SHEET_ID, SHEET_RANGE)
     sheet_extracted_data = transform_sheet_data(sheet_event_list)
-    # 달력 이벤트 목록 가져오기
-    calendar_event_list = get_calendar_data(CALENDAR_ID)
-    calendar_extracted_data = transform_calendar_data(calendar_event_list)
-    # GoogleSheet 이벤트 목록과 달력 이벤트 목록을 비교해서 새로운 이벤트과 기존 이미지를 가져온다
-    new_event_list, existing_list, existing_event_id = check_new_events(sheet_extracted_data, calendar_extracted_data)
+    # print(sheet_extracted_data)
 
-    # 기존 이벤트 업데이트    
+    time_filtered_sheet_data = limit_calendar_data_by_datetime(
+        transformed_list=sheet_extracted_data, min_week=26
+    )
+    # print(time_filtered_sheet_data)
+
+    # 달력 이벤트 목록 가져오기
+    calendar_event_list = get_calendar_data(calendar_id=CALENDAR_ID, min_week=26)
+    calendar_extracted_data = transform_calendar_data(calendar_event_list)
+    # print(calendar_extracted_data)
+
+    # GoogleSheet 이벤트 목록과 달력 이벤트 목록을 비교해서 새로운 이벤트과 기존 이미지를 가져온다
+    new_event_list, existing_list, existing_event_id = check_new_events(
+        time_filtered_sheet_data, calendar_extracted_data
+    )
+    # print(set(new_event_list))
+    # 기존 이벤트 업데이트
     # if existing_list:
-        # update_event_description(CALENDAR_ID, existing_list, existing_event_id, sheet_extracted_data)
-        # print(existing_list, existing_event_id)
+    # update_event_description(CALENDAR_ID, existing_list, existing_event_id, sheet_extracted_data)
+    # print(existing_list, existing_event_id)
     # 이벤트 달력에 삽입
     if new_event_list:
         insert_events(CALENDAR_ID, new_event_list, sheet_extracted_data)
