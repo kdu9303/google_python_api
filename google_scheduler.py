@@ -24,7 +24,7 @@ SHEET_SCOPE = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
 SHEET_API_SERVICE_NAME = "sheets"
 SHEET_API_VERSION = "v4"
 SHEET_ID = os.getenv("SHEET_ID")
-SHEET_RANGE = "2023년!C5:M"
+SHEET_RANGE = "2024년!C5:K"
 
 
 # google calander
@@ -350,7 +350,7 @@ def main():
     # print(set(new_event_list))
     # 기존 이벤트 업데이트
     # if existing_list:
-    # update_event_description(CALENDAR_ID, existing_list, existing_event_id, sheet_extracted_data)
+        # update_event_description(CALENDAR_ID, existing_list, existing_event_id, sheet_extracted_data)
     # print(existing_list, existing_event_id)
     # 이벤트 달력에 삽입
     if new_event_list:
