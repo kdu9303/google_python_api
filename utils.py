@@ -11,15 +11,16 @@ def transform_datetime_to_date(datetime_str: str, time_delta: int = 0):
 
 
 def transform_range_date_to_date(date_range_str: str):
-    current_year = date.today().year
-    date_range_str_cleaned = remove_non_words(date_range_str)
+    # current_year = date.today().year
+    date_range_str_cleaned = remove_non_words(date_range_str).replace(" ", "")
     # print(date_range_str_cleaned)
 
     date_parts = date_range_str_cleaned.split("~")
 
     # Check if the date range has '~' separator
     if len(date_parts) == 1:
-        transformed_date = f"{current_year}-{date_parts[0].replace('.', '-')}"
+        # transformed_date = f"{current_year}-{date_parts[0].replace('.', '-')}"
+        transformed_date = f"{date_parts[0].replace('.', '-')}"
     else:
         start_date = date_parts[0]
         end_date = date_parts[1]
@@ -28,7 +29,8 @@ def transform_range_date_to_date(date_range_str: str):
         if end_date < start_date:
             current_year += 1
 
-        transformed_date = f"{current_year}-{end_date.replace('.', '-')}"
+        # transformed_date = f"{current_year}-{end_date.replace('.', '-')}"
+        transformed_date = f"{end_date.replace('.', '-')}"
 
     return transformed_date
 

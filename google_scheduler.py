@@ -181,7 +181,7 @@ def limit_calendar_data_by_datetime(
             if due_date >= time_min:
                 limited_list.append(item)
         except ValueError as e:
-            print(f"Invalid date format in {item}: {e}")
+            print(f"날짜형식 오류 in {item}: {e}")
             continue  # Skip this item
     return limited_list
 
