@@ -1,0 +1,4 @@
+rich
+python-dateutil
+python-dotenv
+google-api-python-client
