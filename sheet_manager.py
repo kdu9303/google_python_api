@@ -9,7 +9,12 @@ from utils import (
 
 class GoogleSheetManager:
     def __init__(self, google_service: GoogleService, sheet_id: str):
-        """Initialize Google Sheet Manager."""
+        """구글 시트 관리자를 초기화합니다.
+        
+        Args:
+            google_service: 구글 서비스 인스턴스
+            sheet_id: 구글 시트 ID
+        """
         self.SCOPE = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
         self.API_SERVICE_NAME = "sheets"
         self.API_VERSION = "v4"
@@ -19,7 +24,14 @@ class GoogleSheetManager:
         )
 
     def get_sheet_data(self, sheet_range: str) -> List:
-        """Fetch data from Google Sheet."""
+        """구글 시트에서 데이터를 가져옵니다.
+        
+        Args:
+            sheet_range: 시트 범위 (예: "2025년!C5:K")
+            
+        Returns:
+            시트에서 가져온 데이터 목록
+        """
         sheet = self.service.spreadsheets()
         event_list = (
             sheet.values()
@@ -33,7 +45,14 @@ class GoogleSheetManager:
 
     @staticmethod
     def transform_sheet_data(sheet_events: List) -> List[Dict]:
-        """Transform sheet data into structured format."""
+        """시트 데이터를 구조화된 형식으로 변환합니다.
+        
+        Args:
+            sheet_events: 시트에서 가져온 원본 데이터
+            
+        Returns:
+            변환된 이벤트 목록 (summary, due_date, description 포함)
+        """
         transformed_list = []
 
         try:

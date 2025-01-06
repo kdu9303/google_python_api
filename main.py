@@ -20,7 +20,12 @@ class EventSynchronizer:
         sheet_manager: GoogleSheetManager,
         calendar_manager: GoogleCalendarManager
     ):
-        """Initialize Event Synchronizer."""
+        """이벤트 동기화 관리자를 초기화합니다.
+        
+        Args:
+            sheet_manager: 구글 시트 관리자 인스턴스
+            calendar_manager: 구글 캘린더 관리자 인스턴스
+        """
         self.sheet_manager = sheet_manager
         self.calendar_manager = calendar_manager
     
@@ -29,7 +34,15 @@ class EventSynchronizer:
         sheet_events: List[Dict],
         calendar_events: List[Dict]
     ) -> Tuple[List, List, List]:
-        """Compare sheet and calendar events to find new events."""
+        """시트와 캘린더의 이벤트를 비교하여 새로운 이벤트를 찾습니다.
+        
+        Args:
+            sheet_events: 시트에서 가져온 이벤트 목록
+            calendar_events: 캘린더에서 가져온 이벤트 목록
+            
+        Returns:
+            새로운 이벤트 목록, 기존 이벤트 목록, 기존 이벤트 ID 목록을 반환
+        """
         new_events = [event.get("summary") for event in sheet_events]
         existing_events = [event.get("summary") for event in calendar_events]
         existing_event_id = [event.get("event_id") for event in calendar_events]
@@ -44,7 +57,15 @@ class EventSynchronizer:
         transformed_list: List[Dict],
         min_week: int
     ) -> List[Dict]:
-        """Filter events by date range."""
+        """특정 기간 내의 이벤트만 필터링합니다.
+        
+        Args:
+            transformed_list: 변환된 이벤트 목록
+            min_week: 현재 시점에서 과거로 몇 주 전까지의 데이터를 가져올지 지정
+            
+        Returns:
+            필터링된 이벤트 목록
+        """
         limited_list = []
         now = datetime.now()
         time_min = (now - timedelta(weeks=min_week)).isoformat()
@@ -64,6 +85,9 @@ class EventSynchronizer:
         return limited_list
 
 def main():
+    year: int = 2025
+    sheet_range: str = "C5:K"
+    
     load_dotenv()
     
     # Initialize services
@@ -73,7 +97,7 @@ def main():
     synchronizer = EventSynchronizer(sheet_manager, calendar_manager)
     
     # Get and transform sheet data
-    sheet_events = sheet_manager.get_sheet_data("2024년!C5:K")
+    sheet_events = sheet_manager.get_sheet_data(f"{year}년!{sheet_range}")
     sheet_data = sheet_manager.transform_sheet_data(sheet_events)
     filtered_sheet_data = synchronizer.limit_calendar_data_by_datetime(
         sheet_data, 25

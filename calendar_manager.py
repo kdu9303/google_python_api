@@ -14,7 +14,12 @@ from utils import (
 
 class GoogleCalendarManager:
     def __init__(self, google_service: GoogleService, calendar_id: str):
-        """Initialize Google Calendar Manager."""
+        """구글 캘린더 관리자를 초기화합니다.
+        
+        Args:
+            google_service: 구글 서비스 인스턴스
+            calendar_id: 구글 캘린더 ID
+        """
         self.SCOPE = ["https://www.googleapis.com/auth/calendar"]
         self.API_SERVICE_NAME = "calendar"
         self.API_VERSION = "v3"
@@ -24,7 +29,14 @@ class GoogleCalendarManager:
         )
     
     def get_calendar_data(self, min_week: int) -> List[Dict]:
-        """Fetch calendar events."""
+        """캘린더에서 이벤트를 가져옵니다.
+        
+        Args:
+            min_week: 현재 시점에서 과거로 몇 주 전까지의 데이터를 가져올지 지정
+            
+        Returns:
+            캘린더에서 가져온 이벤트 목록
+        """
         now = datetime.now()
         time_min = (now - timedelta(weeks=min_week)).isoformat() + "Z"
         time_max = (now + timedelta(weeks=52)).isoformat() + "Z"
@@ -72,7 +84,13 @@ class GoogleCalendarManager:
     def update_event_description(
         self, existing_events: List, existing_event_id: List, sheet_data: List[Dict]
     ) -> None:
-        """Update existing calendar events with new descriptions."""
+        """기존 캘린더 이벤트의 설명을 업데이트합니다.
+        
+        Args:
+            existing_events: 기존 이벤트 목록
+            existing_event_id: 기존 이벤트 ID 목록
+            sheet_data: 시트에서 가져온 최신 데이터
+        """
         for event in zip(existing_events, existing_event_id):
             for sheet_item in sheet_data:
                 try:
@@ -88,7 +106,12 @@ class GoogleCalendarManager:
                     print(f"An error occurred: {error}")
     
     def insert_events(self, new_events: List, sheet_data: List[Dict]) -> None:
-        """Insert new events into calendar."""
+        """새로운 이벤트를 캘린더에 추가합니다.
+        
+        Args:
+            new_events: 추가할 새로운 이벤트 목록
+            sheet_data: 시트에서 가져온 이벤트 데이터
+        """
         for event in new_events:
             for sheet_item in sheet_data:
                 try:
@@ -103,7 +126,11 @@ class GoogleCalendarManager:
                     print(f"An error occurred: {error}")
     
     def remove_duplicate_events(self, min_week: int) -> None:
-        """Remove duplicate events from calendar."""
+        """중복된 캘린더 이벤트를 제거합니다.
+        
+        Args:
+            min_week: 현재 시점에서 과거로 몇 주 전까지의 데이터를 검사할지 지정
+        """
         calendar_data = self.get_calendar_data(min_week)
         calendar_data = [
             event for event in calendar_data 
