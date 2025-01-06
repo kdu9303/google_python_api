@@ -119,7 +119,7 @@ def main():
     #     )
     
     if new_events:
-        print(new_events)
+        # print(new_events)  # 새로운 이벤트 list목록 확인용
         calendar_manager.insert_events(new_events, sheet_data)
 
 if __name__ == "__main__":
