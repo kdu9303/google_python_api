@@ -121,7 +121,7 @@ class GoogleCalendarManager:
                             calendarId=self.calendar_id,
                             body=request_body
                         ).execute()
-                        print(f"이벤트 {event}가 생성되었습니다.")
+                        print(f"이벤트 <{event}>이(가) 생성되었습니다.")
                 except HttpError as error:
                     print(f"An error occurred: {error}")
     
