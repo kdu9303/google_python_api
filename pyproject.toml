@@ -3,7 +3,7 @@ name = "google-python-api"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 dependencies = [
     "google-api-python-client>=2.162.0",
     "python-dateutil>=2.9.0.post0",
